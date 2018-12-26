@@ -4,7 +4,7 @@ import pandas as pd
 from scipy.optimize import minimize, LinearConstraint
 from scipy.stats import skellam
 
-SEASON = '2015-16'  # Define season for the script
+SEASON = '2018-19'  # Define season for the script
 
 # Read in data, create goal diff column, keep relevant columns
 data = pd.read_csv("epl_results.csv")
@@ -48,7 +48,7 @@ start = np.random.uniform(0,1,42)
 # Minimize the likelihood
 res = minimize(likelihoodFn, start, args=(data_clean), method='trust-constr', constraints=[linear_constraint], options={'verbose': 1})
 
-def calculateProbs(z, home_team, away_team, team_dict, params):
+def calculateProb(z, home_team, away_team, team_dict, params):
 	''' Function to calculate the outcome probabilities between two teams
 	@param z: Goal difference
 	@param home_team: Home team string
@@ -63,3 +63,22 @@ def calculateProbs(z, home_team, away_team, team_dict, params):
 	lambda_one = np.exp(mu + h + params[1 + home_id] + params[21 + away_id])
 	lambda_two = np.exp(mu + params[1 + away_id] + params[21 + home_id])
 	return skellam.pmf(z,lambda_one, lambda_two)
+
+team_one = 'Tottenham'
+team_two = 'Wolves'
+
+draw = 0
+win = 0
+loss = 0
+
+draw = calculateProb(0, team_one, team_two, teamDict, res.x)
+
+for i in range(1,15):
+	win += calculateProb(i, team_one, team_two, teamDict, res.x)
+
+for j in range(-15,-1):
+	loss += calculateProb(j, team_one, team_two, teamDict, res.x)
+
+print(team_one, " has a ", round(win,2), " chance of a win")
+print(team_one, " has a ", round(draw,2), " chance of a draw")
+print(team_one, " has a ", round(loss,2), " chance of a loss")
