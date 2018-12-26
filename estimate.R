@@ -30,10 +30,11 @@ skellam <- function(z,lambda1,lambda2) {
     return(exp(-(lambda1 + lambda2)) * (lambda1/lambda2)^(z/2) * bessel)
 }
 
-match_results <- read_csv("epl_results.csv")
+match_results <- read_csv("epl_results_1819.csv")
 match_results <- match_results %>% mutate(GDiff = HG-AG)
 
-current <- match_results %>% filter(Season == "2015-16") %>% select(HomeTeam, AwayTeam, HG, AG, GDiff)
+current <- match_results %>% select(HomeTeam, AwayTeam, HG, AG, GDiff)
+#current <- match_results %>% filter(Season == "2015-16") %>% select(HomeTeam, AwayTeam, HG, AG, GDiff)
 
 home_team_mapped <- as.numeric(mapvalues(current$HomeTeam, from = unique(current$HomeTeam), to = seq(1:20)))
 key_vals <- home_team_mapped[1:20]
@@ -55,7 +56,8 @@ A[1,3:22] <- 1
 A[2,23:42] <- 1
 
 res <- maxNM(neg.log.likelihood, start = rnorm(42,0.1,0.1), constraints=list(eqA = A, eqB = B))
-y <- res$estimate[3:22]; names(y) <- names(key_vals)
+y <- res$estimate[23:42]; names(y) <- names(key_vals)
+sort(y)
 
 sum <- 0
 for(j in 1:10) {
